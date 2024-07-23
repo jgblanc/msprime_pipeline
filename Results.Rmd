@@ -1,0 +1,22 @@
+---
+title: "Results"
+author: "Jennifer Blanc"
+date: "2024-07-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(data.table)
+```
+
+```{r}
+df <- fread("results/all.txt")
+```
+
+```{r}
+ggplot(data = df, aes(x = theta, y = b2PC2^2, color = Fst2)) + geom_point()
+```
+
+
