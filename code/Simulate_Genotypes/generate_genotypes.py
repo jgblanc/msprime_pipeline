@@ -44,12 +44,6 @@ nSplit = int(args.theta * nTotal)
 nA = int(nTotal - nSplit)
 nB = int(nSplit / 2)
 nC = int(nSplit / 2) 
-print(nTotal)
-print(nSplit)
-print(nA)
-print(nB)
-print(nC)
-
 
 # Population IDs correspond to their indexes in the population
 # configuration array. Therefore, we have 0=A, 1=B, 2=C, initially.

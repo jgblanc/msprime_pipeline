@@ -9,14 +9,33 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(data.table)
+library(latex2exp)
 ```
 
+# Plots results
+
+Read in table
 ```{r}
 df <- fread("results/all.txt")
 ```
 
+Plot $b^2$ vs $\theta$ for PC2
 ```{r}
-ggplot(data = df, aes(x = theta, y = b2PC2^2, color = Fst2)) + geom_point()
+df$D <- as.factor(df$D)
+df$label <- paste0("Fst2 ", df$expFst2)
+
+pl <- ggplot(data = df, aes(x = theta, y = b2PC2, color = D)) + geom_point(size=2) + facet_wrap(~label) + theme_bw(base_size = 12) + xlab(TeX("\\theta")) + ylab(TeX("$b^2$")) + scale_color_manual(values = c("cadetblue4", "cadetblue3", "cadetblue1"), name = "D (M * L)")
+pl
+
+#ggsave("~/Desktop/b2.png", pl)
 ```
 
+Plot $b^2$ vs $\theta$ for PC1 
+```{r}
+df$D <- as.factor(df$D)
+df$label <- paste0("Fst1 ", df$expFst1)
+
+pl <- ggplot(data = df, aes(x = theta, y = b2PC1, color = D)) + geom_point(size=2) + facet_wrap(~label) + theme_bw(base_size = 12) + xlab(TeX("\\theta")) + ylab(TeX("$b^2$")) + scale_color_manual(values = c("cadetblue4", "cadetblue3", "cadetblue1"), name = "D (M * L)")
+pl
+```
 

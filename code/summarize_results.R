@@ -8,16 +8,18 @@ library(dplyr)
 outfile = args[1]
 
 # Loop through files to get results
-dfOut <- matrix(NA, nrow = 1, ncol = 9)
+dfOut <- matrix(NA, nrow = 1, ncol = 11)
 for (i in 2:length(args)) {
   print(i)
   filename <- args[i]
 
   # Extract parameters
-  rep <- strsplit(filename, "/")[[1]][3]
-  M <- as.numeric(strsplit(strsplit(filename, "/")[[1]][4], "-")[[1]][2])
-  theta <- as.numeric(strsplit(strsplit(filename, "/")[[1]][5], "-")[[1]][2])
-  L <- as.numeric(strsplit(strsplit(filename, "/")[[1]][6], "-")[[1]][2])
+  expFst1 <- strsplit(strsplit(strsplit(filename, "/")[[1]][3], "_")[[1]][1], "-")[[1]][2]
+  expFst2 <- strsplit(strsplit(strsplit(filename, "/")[[1]][3], "_")[[1]][2], "-")[[1]][2]
+  rep <- strsplit(filename, "/")[[1]][4]
+  M <- as.numeric(strsplit(strsplit(filename, "/")[[1]][5], "-")[[1]][2])
+  theta <- as.numeric(strsplit(strsplit(filename, "/")[[1]][6], "-")[[1]][2])
+  L <- as.numeric(strsplit(strsplit(filename, "/")[[1]][7], "-")[[1]][2])
 
   # Calculate dimensions
   D <- M * L
@@ -34,12 +36,12 @@ for (i in 2:length(args)) {
   Fst2 <- dfFst[3,3]
 
   # Create row to add to output
-  outRow <- c(rep, M, theta, L, D, b2PC1, b2PC2, Fst1, Fst2)
+  outRow <- c(expFst1, expFst2, rep, M, theta, L, D, b2PC1, b2PC2, Fst1, Fst2)
   dfOut <- rbind(dfOut, outRow)
 
 }
 
 # Save output
-colnames(dfOut) <- c("Rep", "M", "theta", "L", "D", "b2PC1", "b2PC2", "Fst1", "Fst2")
+colnames(dfOut) <- c("expFst1", "expFst2" ,"Rep", "M", "theta", "L", "D", "b2PC1", "b2PC2", "Fst1", "Fst2")
 dfOut <- dfOut[2:nrow(dfOut),]
 write.table(dfOut, outfile, quote = F, col.names = T, row.names = F)
