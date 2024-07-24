@@ -1,11 +1,13 @@
 EXP_FST = ["fst1-0.1_fst2-0.05", "fst1-0.1_fst2-0.01", "fst1-0.1_fst2-0.005", "fst1-0.1_fst2-0.001"]
 REP = ["A1"]
+#for i in range(1,31):
+#  REP.append("A"+str(i))
 SAMPLE_SIZE = ["M-1000"]
 THETA = ["t-0.05", "t-0.1", "t-0.15", "t-0.2", "t-0.25"]
 CHR = []
 for i in range(1,31):
   CHR.append(str(i))
-NSNP = ["L-500","L-1000", "L-10000"]
+NSNP = ["L-500","L-1000", "L-5000", "L-10000"]
 
 # Helper function
 def get_params(x):
