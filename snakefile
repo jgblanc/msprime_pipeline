@@ -1,7 +1,7 @@
 EXP_FST = ["fst1-0.1_fst2-0.05", "fst1-0.1_fst2-0.01", "fst1-0.1_fst2-0.005", "fst1-0.1_fst2-0.001"]
-REP = ["A1"]
-#for i in range(1,31):
-#  REP.append("A"+str(i))
+REP = []
+for i in range(1,31):
+  REP.append("A"+str(i))
 SAMPLE_SIZE = ["M-1000"]
 THETA = ["t-0.05", "t-0.1", "t-0.15", "t-0.2", "t-0.25"]
 CHR = []
@@ -55,7 +55,7 @@ rule simulate_genotypes:
         s2 = lambda wildcards: get_s2(wildcards.exp_fst, 1000)
     shell:
         """
-        python -u code/Simulate_Genotypes/generate_genotypes.py \
+        python3 -u code/Simulate_Genotypes/generate_genotypes.py \
 	      --outpre {params.output_prefix} \
        	--Nanc 1000 \
 	      --NA 1000 \
@@ -180,7 +180,7 @@ rule calculate_fst:
         psam="output/Simulate_Genotypes/{exp_fst}/{rep}/{sample_size}/{theta}/genos.psam",
         pgen="output/Simulate_Genotypes/{exp_fst}/{rep}/{sample_size}/{theta}/genos.pgen",
         pvar="output/Simulate_Genotypes/{exp_fst}/{rep}/{sample_size}/{theta}/genos.pvar",
-        pop="output/Simulate_Genotypes/{exp_fst}/{rep}/{sample_size}/{theta}/genos.pop",
+        pops="output/Simulate_Genotypes/{exp_fst}/{rep}/{sample_size}/{theta}/genos.pop",
         snps="output/Simulate_Genotypes/{exp_fst}/{rep}/{sample_size}/{theta}/{nsnp}/snp_list.txt"
     output:
         "output/Simulate_Genotypes/{exp_fst}/{rep}/{sample_size}/{theta}/{nsnp}/genos.fst.summary"
@@ -192,7 +192,7 @@ rule calculate_fst:
 	plink2 \
 	      --pfile {params.plink_prefix} \
 	      --extract {input.snps} \
-	      --pheno {input.pop} \
+	      --pheno {input.pops} \
 	      --fst POP \
 	      --out {params.out_prefix}
 		    """
@@ -225,12 +225,12 @@ rule PCA:
 rule compute_b2:
     input:
         evec="output/Simulate_Genotypes/{exp_fst}/{rep}/{sample_size}/{theta}/{nsnp}/genos.eigenvec",
-        pop="output/Simulate_Genotypes/{exp_fst}/{rep}/{sample_size}/{theta}/genos.pop"
+        pops="output/Simulate_Genotypes/{exp_fst}/{rep}/{sample_size}/{theta}/genos.pop"
     output:
         "output/Simulate_Genotypes/{exp_fst}/{rep}/{sample_size}/{theta}/{nsnp}/b2.txt"
     shell:
         """
-        Rscript code/Simulate_Genotypes/compute_B2.R {input.evec} {input.pop} {output}
+        Rscript code/Simulate_Genotypes/compute_b2.R {input.evec} {input.pops} {output}
         """
 
 #######################
