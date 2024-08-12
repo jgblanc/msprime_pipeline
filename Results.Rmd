@@ -21,7 +21,7 @@ df <- fread("results/all.txt")
 
 Plot $b^2$ vs $\theta$ for PC2
 ```{r}
-df$expFst2 <- df$expFst2 * 2
+df$expFst2 <- df$expFst2
 df$D <- as.factor(df$D)
 df$label <- paste0("Fst2 ", df$expFst2)
 
@@ -32,15 +32,32 @@ dfSum <- dfSum %>% mutate(numerator = ((theta^2 * M * L * expFst2^2) -1), denomi
 pl <- ggplot(data = dfSum, aes(x = theta, y = avg, color = D)) + geom_point() + facet_wrap(~label) + theme_bw(base_size = 12) + xlab(TeX("\\theta")) + ylab(TeX("$b^2$")) + geom_errorbar(aes(ymin = low.ci, ymax = up.ci), width = 0.03) + guides(color=guide_legend(title="D (M * L)")) + geom_point(aes(x = theta, y = expb2, color = D), shape = 4, size = 2)
 pl
 
-#ggsave("~/Desktop/b2.png", pl, width = 7, height = 5)
+ggsave("~/Desktop/b2.png", pl, width = 7, height = 5)
 ```
 
-Plot $b^2$ vs $\theta$ for PC1 
+
 ```{r}
 df$D <- as.factor(df$D)
-df$label <- paste0("Fst1 ", df$expFst1)
+df$label <- paste0("Fst2 ", df$expFst2)
 
-pl <- ggplot(data = df, aes(x = theta, y = b2PC1, color = D)) + geom_point(size=2) + facet_wrap(~label) + theme_bw(base_size = 12) + xlab(TeX("\\theta")) + ylab(TeX("$b^2$")) + scale_color_manual(values = c("cadetblue4", "cadetblue3", "cadetblue1"), name = "D (M * L)")
+dfSum <- df %>% group_by(expFst1, expFst2, M, L, theta, D,label) %>% summarise(avg = mean(b2PC2), se = sd(b2PC2)/sqrt(n()), avg_Fst = mean(Fst2)) %>% mutate(up.ci = avg + (1.96*se), low.ci = avg - (1.96*se))
+
+dfSum <- dfSum %>% mutate(numerator = ((theta^2 * M * L * avg_Fst^2) -1), denominator =  (theta^2 * M * L * avg_Fst^2) + (theta * M * avg_Fst)) %>% mutate(expb2 = numerator / denominator) %>% mutate(expb2 = case_when(avg_Fst <=  (1/(theta * sqrt(M*L))) ~ 0, avg_Fst >= (1/(theta * sqrt(M*L))) ~ expb2))
+
+
+pl <- ggplot(data = dfSum, aes(x = theta, y = avg, color = D)) + geom_point() + facet_wrap(~label) + theme_bw(base_size = 12) + xlab(TeX("\\theta")) + ylab(TeX("$b^2$")) + geom_errorbar(aes(ymin = low.ci, ymax = up.ci), width = 0.03) + guides(color=guide_legend(title="D (M * L)")) + geom_point(aes(x = theta, y = expb2, color = D), shape = 4, size = 2)
 pl
 ```
+
+
+
+```{r}
+
+```
+
+
+
+
+
+
 

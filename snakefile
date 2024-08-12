@@ -17,14 +17,16 @@ def get_params(x):
 def get_s1(x, Ne):
   fst1 = x.split("_")[0]
   fst1 = float(fst1.split("-")[1])
-  gentime = (fst1 * 4 * float(Ne)) / (1 - fst1)
+  #gentime = (fst1 * 4 * float(Ne)) / (1 - fst1)
+  gentime = fst1 * (1 * float(Ne))
   yeartime = int(gentime * 25)
   return yeartime
 
 def get_s2(x, Ne):
-  fst1 = x.split("_")[1]
-  fst1 = float(fst1.split("-")[1])
-  gentime = (fst1 * 4 * float(Ne)) / (1 - fst1)
+  fst2 = x.split("_")[1]
+  fst2 = float(fst2.split("-")[1])
+  #gentime = (fst1 * 4 * float(Ne)) / (1 - fst1)
+  gentime = fst2 * (1 * float(Ne))
   yeartime = int(gentime * 25)
   return yeartime
 
