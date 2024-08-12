@@ -1,6 +1,6 @@
 EXP_FST = ["fst1-0.1_fst2-0.05", "fst1-0.1_fst2-0.01", "fst1-0.1_fst2-0.005", "fst1-0.1_fst2-0.001"]
 REP = []
-for i in range(1,31):
+for i in range(1,101):
   REP.append("A"+str(i))
 SAMPLE_SIZE = ["M-1000"]
 THETA = ["t-0.05", "t-0.1", "t-0.15", "t-0.2", "t-0.25"]
