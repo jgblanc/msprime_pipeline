@@ -1,0 +1,277 @@
+---
+title: "RVersion"
+output: html_document
+date: "2025-02-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Set up population model 
+
+```{r}
+# Declare variables 
+L <- 1000
+M <- 1000
+theta <- 0.1
+fst1 <- 0.1
+fst2 <- 0.01
+```
+
+```{r}
+# Draw ancestral allele frequecies 
+panc <- runif(L)
+pint[panc >= 1] <- 0.99
+pint[panc <= 0] <- 0.01
+
+# Draw allele frequencies for pop A
+pA <- rnorm(L, mean = panc, sd = sqrt(fst1 * panc * (1 - panc)))
+
+# Draw intermediate split 
+pint <- rnorm(L, mean = panc, sd = sqrt((fst1-fst2) * panc * (1 - panc)))
+pint[pint >= 1] <- 0.99
+pint[pint <= 0] <- 0.01
+plot(panc, pint)
+
+# Draw B and C
+pB <- rnorm(L, mean = pint, sd = sqrt(fst2 * pint * (1 - pint)))
+pC <- rnorm(L, mean = pint, sd = sqrt(fst2 * pint * (1 - pint)))
+```
+
+```{r}
+# Set scale of genotypic variance
+sigma2 <- 0.01
+
+# Draw normal genotype for pop A
+Ga <- matrix(NA, nrow = (1 - theta)*M , ncol = L)
+for (i in 1:((1 - theta)*M)) {
+  Ga[i,] <- rnorm(L, mean = pA, sd = sqrt(sigma2))
+}
+
+# Draw normal genotype for pop B
+Gb <- matrix(NA, nrow = theta*M*0.5 , ncol = L)
+for (i in 1:(theta*M*0.5)) {
+  Gb[i,] <- rnorm(L, mean = pB, sd = sqrt(sigma2))
+}
+
+# Draw normal genotype for pop C
+Gc <- matrix(NA, nrow = theta*M*0.5 , ncol = L)
+for (i in 1:(theta*M*0.5)) {
+  Gc[i,] <- rnorm(L, mean = pC, sd = sqrt(sigma2))
+}
+
+# Combine genotypes into single matrix
+G <- rbind(Ga, Gb, Gc)
+G <- scale(G)
+```
+
+```{r}
+# Do eigen decomp on covariance matrix 
+K <- (1/(M-1)) * (G %*% t(G))
+myE <- eigen(K)
+
+# Extract top 2 eigenvalues 
+sample_e1 <- myE$vectors[,1]
+sample_e2 <- myE$vectors[,2]
+```
+```{r}
+# Construct population eigenvectors
+pop_e1 <- c(rep(theta/(1- theta), (1 - theta)*M), rep(-1, theta*M)) / sqrt(theta/(1-theta))
+pop_e2 <- c(rep(0, (1 - theta)*M), rep(1, theta*M*0.5), rep(-1, theta*M*0.5)) / sqrt(theta)
+
+# Compute b2
+b2 <- cor(sample_e2, pop_e2)^2
+```
+
+
+```{r}
+simulate_normals <- function(L, M, theta, fst1, fst2) {
+  
+  sigma2A <- (1/log(2*M)) * ((4*fst1 - fst2) + 1)
+  sigma2BC <- (1/log(2*M)) * ((theta*fst2) + 1) 
+  
+  # Draw ancestral allele frequencies 
+  panc <- runif(L)
+  panc <- pmin(pmax(panc, 0.01), 0.99)
+
+  # Draw allele frequencies for pop A
+  pA <- rnorm(L, mean = panc, sd = sqrt(fst1 * panc * (1 - panc)))
+  pA <- pmin(pmax(pA, 0.01), 0.99)  # Bound values between 0.01 and 0.99
+
+  # Draw intermediate split 
+  pint <- rnorm(L, mean = panc, sd = sqrt((fst1 - fst2) * panc * (1 - panc)))
+  pint <- pmin(pmax(pint, 0.01), 0.99)
+
+  # Draw B and C
+  pB <- rnorm(L, mean = pint, sd = sqrt(fst2 * pint * (1 - pint)))
+  pC <- rnorm(L, mean = pint, sd = sqrt(fst2 * pint * (1 - pint)))
+  pB <- pmin(pmax(pB, 0.01), 0.99)
+  pC <- pmin(pmax(pC, 0.01), 0.99)
+
+  # Define population sizes with rounding
+  size_A <- round((1 - theta) * M)
+  size_B <- round(theta * M * 0.5)
+  size_C <- round(theta * M * 0.5)
+
+  # Draw normal genotype for pop A
+  Ga <- matrix(rnorm(size_A * L, mean = rep(pA, each = size_A), sd = sqrt(sigma2A)), 
+               nrow = size_A, ncol = L)
+
+  # Draw normal genotype for pop B
+  Gb <- matrix(rnorm(size_B * L, mean = rep(pB, each = size_B), sd = sqrt(sigma2BC)), 
+               nrow = size_B, ncol = L)
+
+  # Draw normal genotype for pop C
+  Gc <- matrix(rnorm(size_C * L, mean = rep(pC, each = size_C), sd = sqrt(sigma2BC)), 
+               nrow = size_C, ncol = L)
+
+  # Combine genotypes into single matrix
+  G <- rbind(Ga, Gb, Gc)
+  G <- scale(G)
+
+  # Do eigen decomposition on covariance matrix 
+  K <- (1/(M-1)) * (G %*% t(G))
+  myE <- eigen(K)
+
+  # Extract top 2 eigenvalues 
+  sample_e1 <- myE$vectors[,1]
+  sample_e2 <- myE$vectors[,2]
+
+  # Construct population eigenvectors
+  pop_e1 <- c(rep(-theta, size_A), rep(1 - theta, size_B + size_C)) / (theta * sqrt(((theta^2 + 1)/theta) - 1))
+  pop_e2 <- c(rep(0, size_A), rep(1, size_B), rep(-1, size_C)) / sqrt(theta)
+
+  # Compute b2
+  b2_e1 <- cor(sample_e1, pop_e1)^2
+  b2_e2 <- cor(sample_e2, pop_e2)^2  
+
+  return(list(b2_e1 = b2_e1, b2_e2 = b2_e2))
+}
+
+```
+
+```{r}
+simulate_normals(L=1e3, M=5e2, theta =0.5, fst1 = 0.9, fst2 = 0.2)
+```
+
+
+
+```{r}
+library(dplyr)
+library(purrr)
+library(tidyr)
+library(tidyverse)
+
+# Define parameter values
+theta_vals <- exp(seq(log(0.01), log(0.8), length.out = 8))
+fst1_vals <- c(0.6)
+fst2_vals <- c(0.25, 0.5, 0.125)
+reps <- 1:20  # 20 replicates
+M <- 5e+02
+L <- 1e+03
+
+
+# Generate all combinations of parameters and replicates
+param_grid <- expand.grid(rep = reps, theta = theta_vals, fst1 = fst1_vals, fst2 = fst2_vals)
+
+# Function to apply simulate_normals_optimized() for each row
+run_simulation <- function(rep, theta, fst1, fst2) {
+  simulate_normals(L = L, M = M, theta = theta, fst1 = fst1, fst2 = fst2)
+}
+
+# Apply function over all parameter combinations
+results <- param_grid %>%
+  mutate(simulation = pmap(list(rep, theta, fst1, fst2), run_simulation)) %>%
+  unnest_wider(simulation, names_sep = "_")  # Split list column into separate columns
+
+# Rename extracted columns
+colnames(results)[colnames(results) == "simulation_1"] <- "b2_e1"
+colnames(results)[colnames(results) == "simulation_2"] <- "b2_e2"
+
+# Print results
+print(results)
+```
+
+
+
+```{r}
+dfPlot <- results
+#dfPlot$fst1 <- as.character(dfPlot$fst1)
+dfPlot$fst2 <- as.character(dfPlot$fst2)
+
+#ggplot(data = dfPlot, aes(x = theta, y = simulation_b2_e1, color = fst1)) + geom_point() + ylim(0,1)
+ggplot(data = dfPlot, aes(x = theta, y = simulation_b2_e2, color = fst2)) + geom_point() + ylim(0,1) + scale_x_log10()
+```
+
+## Theory PC 1
+
+```{r}
+# Define parameters
+M <- 5e5  
+L <- 1e5  
+fst1_values <- c(0.01, 0.1, 0.2)
+fst2 <- 0.01
+
+# Define theta range
+theta_seq <- seq(0.01, 0.99, length.out = 1000)
+
+# Create a data frame with all combinations of theta and fst1 values
+df <- expand_grid(theta = theta_seq, fst1 = fst1_values) %>%
+  mutate(
+    lambda = (1 + ((M * (1- theta)) * ((4 * fst1) - fst2))) / log(2*M),
+    pc1 = case_when(
+      lambda > (1 + sqrt(M/L)) ~ (1 - ((M/L)/(lambda - 1)^2))/(1 + ((M/L)/(lambda - 1)))  ,
+      lambda <= (1 + sqrt(M/L)) ~ 0
+    )
+  )
+
+# Plot using ggplot with different colors for each fst1 value
+ggplot(df, aes(x = theta, y = pc1, color = factor(fst1))) +
+  geom_line(size = 1.2) + ylim(0,1) + 
+  labs(
+    x = expression(theta),
+    y = expression(b^2),
+    color = expression(fst[1])  # Label for legend
+  ) +
+  theme_minimal() + scale_x_log10()
+```
+
+## Theory PC 2
+
+```{r}
+# Define parameters
+M <- 5e2  
+L <- 1e3  
+fst1 <- 0.9
+fst2_values <- c(0.25, 0.5, 0.125)
+
+# Define theta range
+theta_seq <- seq(0.01, 0.8, length.out = 1000)
+
+# Create a data frame with all combinations of theta and fst1 values
+df <- expand_grid(theta = theta_seq, fst2 = fst2_values) %>%
+  mutate(
+    lambda = (1 + (M * (theta)*fst2)) / log(2*M),
+    pc2 = case_when(
+      lambda > (1 + sqrt(M/L)) ~ (1 - ((M/L)/(lambda - 1)^2))/(1 + ((M/L)/(lambda - 1))),
+      lambda <= (1 + sqrt(M/L)) ~ 0
+    )
+  )
+
+# Plot using ggplot with different colors for each fst1 value
+ggplot(df, aes(x = theta, y = pc2, color = factor(fst2))) +
+  geom_line(size = 1.2) +
+  labs(
+    x = expression(theta),
+    y = expression(b^2),
+    color = expression(fst[2])  # Label for legend
+  ) +
+  theme_minimal() + scale_x_log10() + geom_point(data = dfPlot, aes(x = theta, y = simulation_b2_e2, color = fst2))
+```
+
+
+
+
+
+
