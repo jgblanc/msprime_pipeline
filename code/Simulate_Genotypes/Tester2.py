@@ -1,0 +1,65 @@
+from tqdm import tqdm
+from joblib import Parallel, delayed
+import numpy as np
+from sklearn.decomposition import IncrementalPCA
+from sklearn.preprocessing import StandardScaler
+import h5py
+from scipy.sparse import random
+import os
+
+# Setup
+n = 500000  # Number of individuals
+L = 100000  # Number of SNPs
+chunk_size = 5000  # Number of individuals to process at a time
+chunk_dir = 'chunks_data/'
+os.makedirs(chunk_dir, exist_ok=True)
+
+# Create Incremental PCA object to extract 2 principal components
+ipca = IncrementalPCA(n_components=2)
+
+# Create a scaler for standardization
+scaler = StandardScaler()
+
+# Progress bar for joblib
+def process_chunk(start, chunk_size, n, L, chunk_dir, scaler, ipca, pbar):
+    end = min(start + chunk_size, n)
+    chunk = random(end - start, L, density=0.1, format='csr')
+    chunk.data = np.random.binomial(2, 0.5, size=chunk.data.shape).astype(np.float32)
+
+    # Standardize
+    chunk_dense = scaler.fit_transform(chunk.toarray()) if start == 0 else scaler.transform(chunk.toarray())
+
+    # Save as HDF5
+    chunk_filename = f'{chunk_dir}/chunk_{start}_{end}.h5'
+    with h5py.File(chunk_filename, 'w') as hf:
+        hf.create_dataset('chunk', data=chunk_dense)
+
+    # Fit PCA incrementally
+    ipca.partial_fit(chunk_dense)
+    
+    # Update progress bar
+    pbar.update(1)
+
+# Use tqdm progress bar
+with tqdm(total=n // chunk_size, desc="Processing Chunks") as pbar:
+    Parallel(n_jobs=-1)(delayed(process_chunk)(start, chunk_size, n, L, chunk_dir, scaler, ipca, pbar) 
+                         for start in range(0, n, chunk_size))
+
+print("Done with PCA fitting")
+
+# Transform and concatenate results with progress tracking
+pcs_list = []
+with tqdm(total=n // chunk_size, desc="Transforming Chunks") as pbar:
+    for start in range(0, n, chunk_size):
+        end = min(start + chunk_size, n)
+        chunk_filename = f'{chunk_dir}/chunk_{start}_{end}.h5'
+
+        with h5py.File(chunk_filename, 'r') as hf:
+            chunk_dense = hf['chunk'][:]
+            pcs_chunk = ipca.transform(chunk_dense)
+            pcs_list.append(pcs_chunk)
+        
+        pbar.update(1)  # Update progress bar
+
+pcs_all = np.vstack(pcs_list)
+print("Final PCA shape:", pcs_all.shape)

@@ -1,0 +1,35 @@
+import numpy as np
+from sklearn.decomposition import IncrementalPCA
+from sklearn.preprocessing import StandardScaler
+
+# Dimensions of data
+n = 50000  # Number of individuals (rows)
+L = 10000  # Number of SNPs (columns)
+
+# Simulate the genotype data (binomial distribution with p=0.5)
+G = np.random.binomial(2, 0.5, size=(n,L)).astype(np.float32)
+
+# Standardize
+scaler = StandardScaler()
+G = scaler.fit_transform(G)
+
+# Do incremental PCA
+ipca = IncrementalPCA(n_components=2, batch_size=100)
+
+# Fit in batches with progress updates
+batch_size = ipca.batch_size
+n_batches = G.shape[0] // batch_size
+
+print(f"Starting PCA process for {n_batches} batches.")
+
+for batch_idx in range(n_batches):
+    start_idx = batch_idx * batch_size
+    end_idx = (batch_idx + 1) * batch_size
+    ipca.partial_fit(G[start_idx:end_idx])
+    print(f"Processed batch {batch_idx + 1} of {n_batches}.")
+
+# Transform data
+G_ipca = ipca.transform(G)
+
+# Print the shape of the resulting data
+print(G_ipca.shape)
