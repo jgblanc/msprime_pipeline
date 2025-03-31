@@ -45,7 +45,7 @@ def simulate_and_save_h5(M, L, theta, fst1, fst2, num_chunks, output_file):
     chunk_size = L // num_chunks  # Number of columns per chunk
     
     # Open an HDF5 file for writing
-    with h5py.File(chunk_dir, "w") as h5f:
+    with h5py.File(output_file, "w") as h5f:
         # Create an extendable dataset
         dset = h5f.create_dataset(
             "genotype_matrix", 
@@ -101,3 +101,4 @@ def simulate_and_save_h5(M, L, theta, fst1, fst2, num_chunks, output_file):
 
 
 
+simulate_and_save_h5(M=M, L=L, theta=args.theta, fst1=args.fst1, fst2=args.fst2, num_chunks=num_chunks_L, output_file=os.path.join(chunk_dir, "genotype_data.h5"))
