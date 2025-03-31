@@ -1,0 +1,58 @@
+# Set FST parameters
+FST1 = ["fst1-0.6"]
+FST2 =  ["fst2-0.25", "fst2-0.5", "fst2-0.125"]
+
+# Define number of reps
+REP = []
+for i in range(1,21):
+  REP.append("A"+str(i))
+
+# Define Sample Size and number of snps
+M = ["M-500"]
+L = ["L-100"]
+
+# Define thetas
+THETA = ["t-0.01", "t-0.019", "t-0.035", "t-0.065", "t-0.122", "t-0.229", "t-0.428", "t-0.8"]
+
+# Helper function
+def get_params(x):
+  out = x.split("-")[1]
+  return out
+
+#################
+## Target Rule ##
+#################
+
+rule all:
+    input:
+        expand("output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/pcs.txt", rep = REP, sample_size=SAMPLE_SIZE, theta=THETA, chr=CHR, nsnp=NSNP, exp_fst=EXP_FST)
+
+
+##########################
+### Simluate Genotypes ###
+##########################
+
+
+rule get_pcs:
+    output:
+        "output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/pcs.txt"
+    params:
+        M = lambda wildcards: get_params(wildcards.M),
+        L = lambda wildcards: get_params(wildcards.L),
+        theta = lambda wildcards: get_params(wildcards.theta),
+        fst1 = lambda wildcards: get_params(wildcards.fst1),
+        fst2 = lambda wildcards: get_params(wildcards.fst2),
+        chunk_dir = "output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/chunks_dir/"
+    shell:
+        """
+        python3 -u code/PCA/simulate_pcs.py \
+	      --M {params.M} \
+       	--L {params.L} \
+	      --theta {params.theta} \
+	      --fst1 {params.fst1} \
+	      --fst2 {params.fst2} \
+	      --outfile {output} \
+  	    --chunk {params.chunk_dir}
+        """
+
+
