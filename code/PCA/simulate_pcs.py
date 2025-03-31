@@ -126,6 +126,6 @@ def process_chunk(start, chunk_size, M, L, chunk_dir, scaler, ipca, pbar):
     pbar.update(1)
 
 # Use tqdm progress bar
-with tqdm(total=M // chunk_size+M, desc="Processing Chunks") as pbar:
-    Parallel(n_jobs=-1)(delayed(process_chunk)(start, chunk_size, n, L, chunk_dir, scaler, ipca, pbar) 
-                         for start in range(0, n, chunk_size))
+with tqdm(total=M // chunk_size_M, desc="Processing Chunks") as pbar:
+    Parallel(n_jobs=-1)(delayed(process_chunk)(start, chunk_size_M, M, L, os.path.join(chunk_dir, "genotype_data.h5"), scaler, ipca, pbar) 
+                         for start in range(0, M, chunk_size_M))
