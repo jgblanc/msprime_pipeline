@@ -100,5 +100,32 @@ def simulate_and_save_h5(M, L, theta, fst1, fst2, num_chunks, output_file):
     print("Processing complete!")
 
 
-
+# Make Genotype Matrix 
 simulate_and_save_h5(M=M, L=L, theta=args.theta, fst1=args.fst1, fst2=args.fst2, num_chunks=num_chunks_L, output_file=os.path.join(chunk_dir, "genotype_data.h5"))
+
+# Function to run incremental PCA 
+def process_chunk(start, chunk_size, M, L, chunk_dir, scaler, ipca, pbar):
+  
+    end = min(start + chunk_size, M)
+    chunk = random(end - start, L, density=0.1, format='csr')
+    
+    # Read from HDF5 (each worker should open the file separately)
+    with h5py.File(chunk_dir, "r") as h5f:
+        chunk = h5f["genotype_matrix"][start:end, :L]  # Read specific rows
+
+    # Convert sparse matrix if needed
+    if isinstance(chunk, np.ndarray):
+        chunk_dense = chunk
+    else:
+        chunk_dense = chunk.toarray() 
+
+    # Fit PCA incrementally
+    ipca.partial_fit(chunk_dense)
+    
+    # Update progress bar
+    pbar.update(1)
+
+# Use tqdm progress bar
+with tqdm(total=M // chunk_size+M, desc="Processing Chunks") as pbar:
+    Parallel(n_jobs=-1)(delayed(process_chunk)(start, chunk_size, n, L, chunk_dir, scaler, ipca, pbar) 
+                         for start in range(0, n, chunk_size))

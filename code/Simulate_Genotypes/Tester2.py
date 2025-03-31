@@ -24,15 +24,8 @@ scaler = StandardScaler()
 def process_chunk(start, chunk_size, n, L, chunk_dir, scaler, ipca, pbar):
     end = min(start + chunk_size, n)
     chunk = random(end - start, L, density=0.1, format='csr')
-    chunk.data = np.random.binomial(2, 0.5, size=chunk.data.shape).astype(np.float32)
-
-    # Standardize
-    chunk_dense = scaler.fit_transform(chunk.toarray()) if start == 0 else scaler.transform(chunk.toarray())
-
-    # Save as HDF5
-    chunk_filename = f'{chunk_dir}/chunk_{start}_{end}.h5'
-    with h5py.File(chunk_filename, 'w') as hf:
-        hf.create_dataset('chunk', data=chunk_dense)
+    
+    #### Read in the L sites to individuals in the individual chunks from the h5 file 
 
     # Fit PCA incrementally
     ipca.partial_fit(chunk_dense)
