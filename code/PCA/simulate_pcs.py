@@ -98,12 +98,12 @@ def simulate_and_save_h5(M, L, theta, fst1, fst2, num_chunks, output_file):
 
 
 # Function to run incremental PCA 
-def process_chunk(start, chunk_size, M, L, chunk_dir, ipca, pbar):
+def process_chunk(start, chunk_size, M, L, outfile, ipca, pbar):
   
     end = min(start + chunk_size, M)
     
     # Read from HDF5 (each worker should open the file separately)
-    with h5py.File(chunk_dir, "r") as h5f:
+    with h5py.File(outfile, "r") as h5f:
         chunk = h5f["genotype_matrix"][start:end, :L]  # Read specific rows
 
     # Convert sparse matrix if needed
@@ -122,21 +122,21 @@ def process_chunk(start, chunk_size, M, L, chunk_dir, ipca, pbar):
 ####### Main ########
 
 # Make Genotype Matrix 
-simulate_and_save_h5(M=M, L=L, theta=theta, fst1=args.fst1, fst2=args.fst2, num_chunks=num_chunks_L, output_file=os.path.join(chunk_dir, "genotype_data.h5"))
+simulate_and_save_h5(M=M, L=L, theta=theta, fst1=args.fst1, fst2=args.fst2, num_chunks=num_chunks_L, output_file=genofile)
 
 # Create Incremental PCA object to extract 2 principal components
 ipca = IncrementalPCA(n_components=2)
 
 # Do incremental PCA
 with tqdm(total=M // chunk_size_M, desc="Processing Chunks") as pbar:
-    Parallel(n_jobs=-1)(delayed(process_chunk)(start, chunk_size_M, M, L, os.path.join(chunk_dir, "genotype_data.h5"), ipca, pbar) 
+    Parallel(n_jobs=-1)(delayed(process_chunk)(start, chunk_size_M, M, L, genofile, ipca, pbar) 
                          for start in range(0, M, chunk_size_M))
                          
 print("Done with PCA fitting")
 
 # Open HDF5 file once
 pcs_list = []
-with h5py.File(os.path.join(chunk_dir, "genotype_data.h5"), "r") as h5f, tqdm(total=M // chunk_size_M, desc="Transforming Chunks") as pbar:
+with h5py.File(genofile, "r") as h5f, tqdm(total=M // chunk_size_M, desc="Transforming Chunks") as pbar:
     for start in range(0, M, chunk_size_M):
         end = min(start + chunk_size_M, M)
 
