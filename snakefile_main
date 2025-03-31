@@ -44,7 +44,7 @@ rule get_pcs:
         theta = lambda wildcards: get_params(wildcards.theta),
         fst1 = lambda wildcards: get_params(wildcards.fst1),
         fst2 = lambda wildcards: get_params(wildcards.fst2),
-        chunk_dir = "output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/chunks_dir/"
+        genofile = "output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/genotype_data.h5",
     shell:
         """
         python3 -u code/PCA/simulate_pcs.py \
@@ -54,7 +54,8 @@ rule get_pcs:
 	      --fst1 {params.fst1} \
 	      --fst2 {params.fst2} \
 	      --outfile {output} \
-  	    --chunk {params.chunk_dir}
+  	    --genofile {params.genofile}
+  	    rm {params.genofile}
         """
 
 
