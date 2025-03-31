@@ -8,9 +8,9 @@ from scipy.sparse import random
 import os
 
 # Setup
-n = 500000  # Number of individuals
-L = 100000  # Number of SNPs
-chunk_size = 5000  # Number of individuals to process at a time
+n = 5000  # Number of individuals
+L = 1000  # Number of SNPs
+chunk_size = 500  # Number of individuals to process at a time
 chunk_dir = 'chunks_data/'
 os.makedirs(chunk_dir, exist_ok=True)
 
