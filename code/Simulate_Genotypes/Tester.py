@@ -2,6 +2,12 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from sklearn.decomposition import IncrementalPCA
+from sklearn.preprocessing import StandardScaler
+from joblib import Parallel, delayed
+import h5py
+from scipy.sparse import random
+import os
+
 
 # Define the parameter values
 theta_vals = np.exp(np.linspace(np.log(0.01), np.log(0.8), num=8))
@@ -79,5 +85,6 @@ final_results.to_csv('simulation_results.txt', sep='\t', index=False)
 
 # Print the results
 print(final_results)
+
 
 
