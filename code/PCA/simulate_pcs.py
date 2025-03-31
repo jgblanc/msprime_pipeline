@@ -133,9 +133,10 @@ with tqdm(total=M // chunk_size_M, desc="Processing Chunks") as pbar:
 print("Done with PCA fitting")
 
 # Open HDF5 file once
-with h5py.File(chunk_dir, "r") as h5f, tqdm(total=M // chunk_size_M, desc="Transforming Chunks") as pbar:
+pcs_list = []
+with h5py.File(os.path.join(chunk_dir, "genotype_data.h5"), "r") as h5f, tqdm(total=M // chunk_size_M, desc="Transforming Chunks") as pbar:
     for start in range(0, M, chunk_size_M):
-        end = min(start + chunk_size, M)
+        end = min(start + chunk_size_M, M)
 
         # Read chunk from HDF5
         chunk = h5f["genotype_matrix"][start:end, :L]  # Read specific rows
