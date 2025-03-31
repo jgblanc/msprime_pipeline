@@ -129,3 +129,26 @@ def process_chunk(start, chunk_size, M, L, chunk_dir, scaler, ipca, pbar):
 with tqdm(total=M // chunk_size_M, desc="Processing Chunks") as pbar:
     Parallel(n_jobs=-1)(delayed(process_chunk)(start, chunk_size_M, M, L, os.path.join(chunk_dir, "genotype_data.h5"), scaler, ipca, pbar) 
                          for start in range(0, M, chunk_size_M))
+                         
+print("Done with PCA fitting")
+
+# Open HDF5 file once
+with h5py.File(chunk_dir, "r") as h5f, tqdm(total=M // chunk_size_M, desc="Transforming Chunks") as pbar:
+    for start in range(0, M, chunk_size_M):
+        end = min(start + chunk_size, M)
+
+        # Read chunk from HDF5
+        chunk = h5f["genotype_matrix"][start:end, :L]  # Read specific rows
+
+        # Ensure it's dense for PCA
+        chunk_dense = chunk if isinstance(chunk, np.ndarray) else chunk.toarray()
+
+        # Apply PCA transformation
+        pcs_chunk = ipca.transform(chunk_dense)
+        pcs_list.append(pcs_chunk)  # Store transformed chunk
+
+        pbar.update(1)  # Update progress bar
+
+# Concatenate all transformed chunks
+pcs_all = np.vstack(pcs_list)
+print("Final PCA shape:", pcs_all.shape)                      
