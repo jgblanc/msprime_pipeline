@@ -27,11 +27,11 @@ def get_params(x):
 
 rule all:
     input:
-        expand("output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/pcs.txt", fst1 = FST1, fst2 = FST2, theta=THETA, m=M, l=L, rep=REP)
+        expand("output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/b2.txt", fst1 = FST1, fst2 = FST2, theta=THETA, m=M, l=L, rep=REP)
 
 
 ##########################
-### Simluate Genotypes ###
+##### Simluate PCS #######
 ##########################
 
 
@@ -56,6 +56,26 @@ rule get_pcs:
 	      --outfile {output} \
   	    --genofile {params.genofile}
   	    rm {params.genofile}
+        """
+
+##########################
+##### Compute b2 #########
+##########################
+
+rule combute_b2:
+    input:
+        "output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/pcs.txt"
+    output:
+        "output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/b2.txt"
+    params:
+        M = lambda wildcards: get_params(wildcards.m),
+        L = lambda wildcards: get_params(wildcards.l),
+        theta = lambda wildcards: get_params(wildcards.theta),
+        fst1 = lambda wildcards: get_params(wildcards.fst1),
+        fst2 = lambda wildcards: get_params(wildcards.fst2)
+    shell:
+        """
+        Rscript code/PCA/calc_b2.R {input} {output} {params.M} {params.L} {params.theta} {params.fst1} {params.fst2}
         """
 
 
