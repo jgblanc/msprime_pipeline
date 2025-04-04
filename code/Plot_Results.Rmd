@@ -88,3 +88,37 @@ ggplot(df, aes(x = theta, y = pc2, color = factor(fst2))) +
   theme_minimal() + scale_x_log10() +
   geom_point(data = dfPlot, aes(x = theta, y = b2PC2))
 ```
+
+
+```{r}
+# Define parameters
+M <- 5e5  
+L <- 1e5  
+fst1 <- 0.01
+fst2_values <- c( 0.0001, 0.0005, 0.001)
+
+# Define theta range
+theta_seq <- seq(0.01, 0.25, length.out = 1000)
+
+# Create a data frame with all combinations of theta and fst1 values
+df <- expand_grid(theta = theta_seq, fst2 = fst2_values) %>%
+  mutate(
+    #lambda = (1 + (M * (theta)*fst2)) / log(2*M),
+    lambda = (1 + (M * (theta)*fst2)),
+    pc2 = case_when(
+      #lambda > (1 + sqrt(M/L)) ~ (1 - ((M/L)/(lambda - 1)^2))/(1 + ((M/L)/(lambda - 1))),
+      lambda > (1 + sqrt(M/L)) ~ ((theta^2 * M * L * fst2^2) - 1)/((theta^2 * M * L * fst2^2) + (theta * M * fst2)),
+      lambda <= (1 + sqrt(M/L)) ~ 0
+    )
+  )
+
+# Plot using ggplot with different colors for each fst1 value
+ggplot(df, aes(x = theta, y = pc2, color = factor(fst2))) +
+  geom_line(size = 1.2) +
+  labs(
+    x = expression(theta),
+    y = expression(b^2),
+    color = expression(fst[2])  # Label for legend
+  ) +
+  theme_minimal()
+```
