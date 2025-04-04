@@ -14,11 +14,11 @@ for (i in 2:length(args)) {
   filename <- args[i]
 
   # Extract parameters
-  Fst1 <- strsplit(strsplit(filename, "/")[[1]][2], "-")[[1]][2]
-  Fst2 <- strsplit(strsplit(filename, "/")[[1]][3], "-")[[1]][2]
-  theta <- strsplit(strsplit(filename, "/")[[1]][4], "-")[[1]][2]
-  M <- strsplit(strsplit(strsplit(filename, "/")[[1]][5], "_")[[1]][1], "-")[[1]][2]
-  L <- strsplit(strsplit(strsplit(filename, "/")[[1]][5], "_")[[1]][2], "-")[[1]][2]
+  Fst1 <- as.numeric(strsplit(strsplit(filename, "/")[[1]][2], "-")[[1]][2])
+  Fst2 <- as.numeric(strsplit(strsplit(filename, "/")[[1]][3], "-")[[1]][2])
+  theta <- as.numeric(strsplit(strsplit(filename, "/")[[1]][4], "-")[[1]][2])
+  M <- as.numeric(strsplit(strsplit(strsplit(filename, "/")[[1]][5], "_")[[1]][1], "-")[[1]][2])
+  L <- as.numeric(strsplit(strsplit(strsplit(filename, "/")[[1]][5], "_")[[1]][2], "-")[[1]][2])
   rep <- strsplit(filename, "/")[[1]][6]
 
   # Calculate dimensions
