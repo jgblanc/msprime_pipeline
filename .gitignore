@@ -5,3 +5,4 @@
 output/*
 .snakemake/*
 chunks_data/*
+logs/*

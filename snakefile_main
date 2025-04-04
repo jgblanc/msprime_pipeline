@@ -1,6 +1,6 @@
 # Set FST parameters
 FST1 = ["fst1-0.2"]
-FST2 =  ["fst2-0.01", "fst2-0.05", "fst2-0.1"]
+FST2 =  ["fst2-0.05"]
 
 # Define number of reps
 REP = []
@@ -43,7 +43,10 @@ rule get_pcs:
         theta = lambda wildcards: get_params(wildcards.theta),
         fst1 = lambda wildcards: get_params(wildcards.fst1),
         fst2 = lambda wildcards: get_params(wildcards.fst2),
-        genofile = "output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/genotype_data.h5",
+	genofile = "output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/genotype_data.h5",
+    resources:
+        mem_mb=38000,
+        time="00:30:00"
     shell:
         """
         python3 -u code/PCA/simulate_pcs.py \
