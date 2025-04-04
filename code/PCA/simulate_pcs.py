@@ -40,6 +40,7 @@ def simulate_and_save_h5(M, L, theta, fst1, fst2, num_chunks, output_file):
     """Simulates genotype data in chunks and saves to an HDF5 file."""
     
     chunk_size = L // num_chunks  # Number of columns per chunk
+    print(chunk_size)
     
     # Open an HDF5 file for writing
     with h5py.File(output_file, "w") as h5f:
@@ -71,9 +72,9 @@ def simulate_and_save_h5(M, L, theta, fst1, fst2, num_chunks, output_file):
             pC = np.clip(pC, 0.01, 0.99)
 
             # Define population sizes
-            size_A = round((1 - theta) * M)
             size_B = round(theta * M * 0.5)
             size_C = round(theta * M * 0.5)
+            size_A = M - size_B - size_C
 
             # Variance components
             sigma2A = (1 / np.log(2 * M)) * ((4 * fst1 - fst2) + 1)
@@ -122,7 +123,7 @@ def process_chunk(start, chunk_size, M, L, outfile, ipca, pbar):
 ####### Main ########
 
 # Make Genotype Matrix 
-simulate_and_save_h5(M=M, L=L, theta=theta, fst1=args.fst1, fst2=args.fst2, num_chunks=num_chunks_L, output_file=genofile)
+simulate_and_save_h5(M=M, L=L, theta=theta, fst1=fst1, fst2=fst2, num_chunks=num_chunks_L, output_file=genofile)
 
 # Create Incremental PCA object to extract 2 principal components
 ipca = IncrementalPCA(n_components=2)

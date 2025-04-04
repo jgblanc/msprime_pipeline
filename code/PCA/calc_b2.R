@@ -1,7 +1,7 @@
 ## Compute b2
 args=commandArgs(TRUE)
 
-if(length(args)<y){stop("Rscript calc_b2.R")}
+if(length(args)<7){stop("Rscript calc_b2.R")}
 
 suppressWarnings(suppressMessages({
   library(data.table)
@@ -17,9 +17,9 @@ fst1 = as.numeric(args[6])
 fst2 = as.numeric(args[7])
 
 # Define population sizes with rounding
-size_A <- round((1 - theta) * M)
 size_B <- round(theta * M * 0.5)
 size_C <- round(theta * M * 0.5)
+size_A <- M - size_B - size_C
 
 # Construct population eigenvectors
 pop_e1 <- c(rep(-theta, size_A), rep(1 - theta, size_B + size_C)) / (theta * sqrt(((theta^2 + 1)/theta) - 1))
