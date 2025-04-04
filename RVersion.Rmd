@@ -248,9 +248,9 @@ results_python <- fread("simulation_results.txt")
 
 ```{r}
 # Define parameters
-M <- 5e2  
+M <- 5e3  
 L <- 1e3  
-fst1 <- 0.6
+fst1 <- 0.5
 fst2_values <- c(0.25, 0.5, 0.125)
 
 # Define theta range
@@ -274,7 +274,8 @@ ggplot(df, aes(x = theta, y = pc2, color = factor(fst2))) +
     y = expression(b^2),
     color = expression(fst[2])  # Label for legend
   ) +
-  theme_minimal() + scale_x_log10() + geom_point(data = dfPlot, aes(x = theta, y = simulation_b2_e2, color = fst2))
+  theme_minimal() + scale_x_log10()
+#+ geom_point(data = dfPlot, aes(x = theta, y = simulation_b2_e2, color = fst2))
 ```
 
 
@@ -289,7 +290,8 @@ ggplot(df, aes(x = theta, y = pc2, color = factor(fst2))) +
     y = expression(b^2),
     color = expression(fst[2])  # Label for legend
   ) +
-  theme_minimal() + scale_x_log10() + geom_point(data = dfPlot_python, aes(x = theta, y = b2_e2, color = fst2))
+  theme_minimal() + scale_x_log10() 
+#+ geom_point(data = dfPlot_python, aes(x = theta, y = b2_e2, color = fst2))
 ```
 
 
