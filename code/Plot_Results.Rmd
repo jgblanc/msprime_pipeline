@@ -1,0 +1,83 @@
+---
+title: "Plot_Results"
+output: html_document
+date: "2025-04-04"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(tidyverse)
+```
+
+```{r}
+dfPlot <- fread("../plots/results_M-5000_L-1000.txt")
+colnames(dfPlot)[9] <- "fst2" 
+```
+
+```{r}
+# Define parameters
+M <- 5e3  
+L <- 1e3  
+fst1 <- 0.5
+fst2_values <- c( 0.125, 0.25, 0.5)
+
+# Define theta range
+theta_seq <- seq(0.01, 0.8, length.out = 1000)
+
+# Create a data frame with all combinations of theta and fst1 values
+df <- expand_grid(theta = theta_seq, fst2 = fst2_values) %>%
+  mutate(
+    lambda = (1 + (M * (theta)*fst2)) / log(2*M),
+    #lambda = (1 + (M * (theta)*fst2)),
+    pc2 = case_when(
+      lambda > (1 + sqrt(M/L)) ~ (1 - ((M/L)/(lambda - 1)^2))/(1 + ((M/L)/(lambda - 1))),
+      #lambda > (1 + sqrt(M/L)) ~ ((theta^2 * M * L * fst2^2) - 1)/((theta^2 * M * L * fst2^2) + (theta * M * fst2)),
+      lambda <= (1 + sqrt(M/L)) ~ 0
+    )
+  )
+
+# Plot using ggplot with different colors for each fst1 value
+ggplot(df, aes(x = theta, y = pc2, color = factor(fst2))) +
+  geom_line(size = 1.2) +
+  labs(
+    x = expression(theta),
+    y = expression(b^2),
+    color = expression(fst[2])  # Label for legend
+  ) +
+  theme_minimal() + scale_x_log10() +
+  geom_point(data = dfPlot, aes(x = theta, y = b2PC2))
+```
+
+```{r}
+# Define parameters
+M <- 5e4  
+L <- 1e4  
+fst1 <- 0.2
+fst2_values <- c( 0.01, 0.05, 0.1)
+
+# Define theta range
+theta_seq <- seq(0.01, 0.8, length.out = 1000)
+
+# Create a data frame with all combinations of theta and fst1 values
+df <- expand_grid(theta = theta_seq, fst2 = fst2_values) %>%
+  mutate(
+    lambda = (1 + (M * (theta)*fst2)) / log(2*M),
+    #lambda = (1 + (M * (theta)*fst2)),
+    pc2 = case_when(
+      lambda > (1 + sqrt(M/L)) ~ (1 - ((M/L)/(lambda - 1)^2))/(1 + ((M/L)/(lambda - 1))),
+      #lambda > (1 + sqrt(M/L)) ~ ((theta^2 * M * L * fst2^2) - 1)/((theta^2 * M * L * fst2^2) + (theta * M * fst2)),
+      lambda <= (1 + sqrt(M/L)) ~ 0
+    )
+  )
+
+# Plot using ggplot with different colors for each fst1 value
+ggplot(df, aes(x = theta, y = pc2, color = factor(fst2))) +
+  geom_line(size = 1.2) +
+  labs(
+    x = expression(theta),
+    y = expression(b^2),
+    color = expression(fst[2])  # Label for legend
+  ) +
+  theme_minimal() + scale_x_log10() 
+```

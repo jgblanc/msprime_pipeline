@@ -61,7 +61,8 @@ def simulate_and_save_h5(M, L, theta, fst1, fst2, num_chunks, output_file):
             L_end = (i + 1) * chunk_size if i < num_chunks - 1 else L  # Ensure last chunk covers remainder
             
             # Simulate allele frequencies for this chunk
-            panc = np.random.uniform(0.01, 0.99, L_end - L_start)
+            #panc = np.random.uniform(0.01, 0.99, L_end - L_start)
+            panc = np.full(L_end - L_start, 0.5)
             pA = np.random.normal(panc, np.sqrt(fst1 * panc * (1 - panc)))
             pA = np.clip(pA, 0.01, 0.99)
             pint = np.random.normal(panc, np.sqrt((fst1 - fst2) * panc * (1 - panc)))
@@ -77,7 +78,7 @@ def simulate_and_save_h5(M, L, theta, fst1, fst2, num_chunks, output_file):
             size_A = M - size_B - size_C
 
             # Variance components
-            sigma2A = (1 / np.log(2 * M)) * ((4 * fst1 - fst2) + 1)
+            sigma2A = (1 / np.log(2 * M)) * (((4 * fst1) - fst2) + 1)
             sigma2BC = (1 / np.log(2 * M)) * ((theta * fst2) + 1)
 
             # Generate genotype matrices
