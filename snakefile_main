@@ -1,10 +1,10 @@
 # Set FST parameters
 FST1 = ["fst1-0.01"]
-FST2 =  ["fst2-0.0001"]
+FST2 =  ["fst2-0.0001", "fst2-0.0005", "fst2-0.001"]
 
 # Define number of reps
 REP = []
-for i in range(1,21):
+for i in range(1,2):
   REP.append("A"+str(i))
 
 # Define Sample Size and number of snps
@@ -47,7 +47,7 @@ rule get_pcs:
 	genofile = "output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/genotype_data.h5",
     resources:
         mem_mb=38000,
-        time="00:30:00"
+        time="12:00:00"
     shell:
         """
         python3 -u code/PCA/simulate_pcs.py \

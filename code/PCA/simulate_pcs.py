@@ -26,8 +26,8 @@ print(args)
 # Setup
 M = args.M  # Number of individuals
 L = args.L  # Number of SNPs
-chunk_size_M = 500  # Number of individuals to process at a time
-num_chunks_L = 10
+chunk_size_M = 5000  # Number of individuals to process at a time
+num_chunks_L = 100
 genofile = args.genofile
 theta=args.theta
 fst1=args.fst1
