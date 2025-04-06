@@ -44,10 +44,10 @@ rule get_pcs:
         theta = lambda wildcards: get_params(wildcards.theta),
         fst1 = lambda wildcards: get_params(wildcards.fst1),
         fst2 = lambda wildcards: get_params(wildcards.fst2),
-	genofile = "output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/genotype_data.h5",
+	genofile = "/scratch/jgblanc/msprime/output/{fst1}/{fst2}/{theta}/{m}_{l}/{rep}/genotype_data.h5",
     resources:
         mem_mb=38000,
-        time="12:00:00"
+        time="24:00:00"
     shell:
         """
         python3 -u code/PCA/simulate_pcs.py \
