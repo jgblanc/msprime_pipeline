@@ -33,6 +33,7 @@ theta=args.theta
 fst1=args.fst1
 fst2=args.fst2
 outfile = args.outfile
+os.makedirs(os.path.dirname(genofile), exist_ok=True)
 
 # Function to simulate genotypes 
 def simulate_and_save_h5(M, L, theta, fst1, fst2, num_chunks, output_file):
