@@ -79,8 +79,8 @@ def simulate_and_save_h5(M, L, theta, fst1, fst2, num_chunks, output_file):
             size_A = M - size_B - size_C
 
             # Variance components
-            sigma2A = (1 / np.log(2 * M)) * (((4 * fst1) - fst2) + 1)
-            sigma2BC = (1 / np.log(2 * M)) * ((theta * fst2) + 1)
+            sigma2A = (((4 * fst1) - fst2) + 1)
+            sigma2BC = ((theta * fst2) + 1)
 
             # Generate genotype matrices
             Ga = np.random.normal(np.tile(pA, (size_A, 1)), np.sqrt(sigma2A), (size_A, L_end - L_start))

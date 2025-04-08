@@ -91,19 +91,25 @@ ggplot(df, aes(x = theta, y = pc2, color = factor(fst2))) +
 
 
 ```{r}
+dfPlot <- fread("../plots/results_M-500000_L-100000.txt")
+colnames(dfPlot)[9] <- "fst2" 
+```
+
+
+
+```{r}
 # Define parameters
-M <- 5e5  
-L <- 1e5  
-fst1 <- 0.01
-fst2_values <- c( 0.0001, 0.0005, 0.001)
+M <- 407219  
+L <- 147604  
+fst1 <- 0.11
+fst2_values <- c( 0.001, 0.01, 0.1)
 
 # Define theta range
-theta_seq <- seq(0.01, 0.25, length.out = 1000)
+theta_seq <- seq(0.001, 1, length.out = 10000)
 
 # Create a data frame with all combinations of theta and fst1 values
 df <- expand_grid(theta = theta_seq, fst2 = fst2_values) %>%
   mutate(
-    #lambda = (1 + (M * (theta)*fst2)) / log(2*M),
     lambda = (1 + (M * (theta)*fst2)),
     pc2 = case_when(
       #lambda > (1 + sqrt(M/L)) ~ (1 - ((M/L)/(lambda - 1)^2))/(1 + ((M/L)/(lambda - 1))),
@@ -120,5 +126,10 @@ ggplot(df, aes(x = theta, y = pc2, color = factor(fst2))) +
     y = expression(b^2),
     color = expression(fst[2])  # Label for legend
   ) +
-  theme_minimal()
+  theme_minimal() + scale_x_log10()
 ```
+
+```{r}
+ggplot(data = dfPlot, aes(x = theta, y = b2PC1, color = fst2)) + geom_point() + ylim(c(0,1))
+y```
+
