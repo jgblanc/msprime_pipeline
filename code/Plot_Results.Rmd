@@ -91,7 +91,7 @@ ggplot(df, aes(x = theta, y = pc2, color = factor(fst2))) +
 
 
 ```{r}
-dfPlot <- fread("../plots/results_M-500000_L-100000.txt")
+dfPlot <- fread("../plots/results_M-407219_L-147604.txt")
 colnames(dfPlot)[9] <- "fst2" 
 ```
 
@@ -126,7 +126,8 @@ ggplot(df, aes(x = theta, y = pc2, color = factor(fst2))) +
     y = expression(b^2),
     color = expression(fst[2])  # Label for legend
   ) +
-  theme_minimal() + scale_x_log10()
+  theme_minimal() + scale_x_log10() +
+  geom_point(data = dfPlot, aes(x = theta, y = b2PC2))
 ```
 
 ```{r}

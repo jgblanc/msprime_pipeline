@@ -1,6 +1,6 @@
 # Set FST parameters
-FST1 = ["fst1-0.01"]
-FST2 =  ["fst2-0.0001", "fst2-0.0005", "fst2-0.001"]
+FST1 = ["fst1-0.11"]
+FST2 =  ["fst2-0.001", "fst2-0.01", "fst2-0.1"]
 
 # Define number of reps
 REP = []
