@@ -78,21 +78,13 @@ def simulate_and_save_h5(M, L, theta, fst1, fst2, num_chunks, output_file):
             size_C = round(theta * M * 0.5)
             size_A = M - size_B - size_C
 
-            # Variance components
-            sigma2A = (((4 * fst1) - fst2) + 1)
-            sigma2BC = ((theta * fst2) + 1)
-
             # Generate genotype matrices
             Ga = np.random.binomial(2, np.tile(pA, (size_A, 1)))
-            print(Ga.shape())
             Gb = np.random.binomial(2, np.tile(pB, (size_B, 1)))
-            print(Gb.shape())
             Gc = np.random.binomial(2, np.tile(pC, (size_C, 1)))
-            print(Gc.shape())
 
             # Stack and standardize
             G = np.vstack((Ga, Gb, Gc))
-            print(G.shape())
             G = (G - np.mean(G, axis=0)) / np.std(G, axis=0)
             
             # Resize dataset to append new chunk
