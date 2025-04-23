@@ -127,7 +127,7 @@ ggplot(df, aes(x = theta, y = pc2, color = factor(fst2))) +
     color = expression(fst[2])  # Label for legend
   ) +
   theme_minimal() + scale_x_log10() +
-  geom_point(data = dfPlot, aes(x = theta, y = b2PC2))
+  geom_jitter(data = dfPlot, aes(x = theta, y = b2PC2),width = 0.1 )
 ```
 
 ```{r}

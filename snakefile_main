@@ -4,7 +4,7 @@ FST2 =  ["fst2-0.001", "fst2-0.01", "fst2-0.1"]
 
 # Define number of reps
 REP = []
-for i in range(1,5):
+for i in range(1,11):
   REP.append("A"+str(i))
 
 # Define Sample Size and number of snps
@@ -13,7 +13,7 @@ L = ["L-147604"]
 
 # Define thetas
 #THETA = ["t-0.01", "t-0.019", "t-0.035", "t-0.065", "t-0.122", "t-0.229", "t-0.428", "t-0.8"]
-THETA = ["t-0.001","t-0.0032", "t-0.01","t-0.032", "t-0.1","t-0.32", "t-0.999"]
+THETA = ["t-0.001","t-0.0032", "t-0.01","t-0.032", "t-0.1","t-0.32"]
 #THETA = ["t-0.1"]
 
 # Helper function
